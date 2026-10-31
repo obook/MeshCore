@@ -47,7 +47,10 @@ public:
   uint8_t agc_reset_interval = 0;  // secs / 4
   char default_scope_name[31];
   uint8_t default_scope_key[16];
-  float tz_offset = 0;
+#ifndef DEFAULT_TZ_OFFSET
+  #define DEFAULT_TZ_OFFSET 0
+#endif
+  float tz_offset = DEFAULT_TZ_OFFSET;
 #ifdef ENABLE_WIFI_INTERFACE
   #ifndef WIFI_SSID
     #define WIFI_SSID ""
