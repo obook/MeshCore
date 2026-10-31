@@ -25,7 +25,7 @@ inline bool isEuSummerTime(uint32_t utc) {
   return utc >= euClockChangeUtc(year, 3) && utc < euClockChangeUtc(year, 10);
 }
 
-// Single-cell LiPo charge, same curve as the meshcore-m5 app: one point every 5 %.
+// Single-cell LiPo charge, same curve as the loraterm app: one point every 5 %.
 inline int lipoPercent(uint16_t mv) {
   static const uint16_t MV[] = {3270, 3610, 3690, 3710, 3730, 3750, 3770, 3790, 3800, 3820, 3840,
                                 3850, 3870, 3910, 3950, 3980, 4020, 4080, 4110, 4150, 4200};
