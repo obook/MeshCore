@@ -1,0 +1,8 @@
+# ThinkNode M5 factory layout, as read from a radio. Using it keeps the spiffs data
+# (identity, contacts, channels) where the radio expects it.
+# Name,   Type, SubType, Offset,   Size
+nvs,      data, nvs,     0x9000,   0x5000
+otadata,  data, ota,     0xe000,   0x2000
+app,      app,  ota_0,   0x10000,  0x250000
+flashApp, app,  ota_1,   0x260000, 0xa0000
+spiffs,   data, spiffs,  0x300000, 0x100000
