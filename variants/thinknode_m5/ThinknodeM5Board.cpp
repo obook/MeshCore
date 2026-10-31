@@ -9,7 +9,7 @@ void ThinknodeM5Board::begin() {
     expander.pinMode(EXP_PIN_BACKLIGHT, OUTPUT); // peripherals
     expander.pinMode(EXP_PIN_LED, OUTPUT); // peripherals
     expander.digitalWrite(EXP_PIN_POWER, HIGH);
-    expander.digitalWrite(EXP_PIN_BACKLIGHT, LOW);
+    expander.digitalWrite(EXP_PIN_BACKLIGHT, LOW); // turned on with the screen; the rotary knob sets the brightness
     expander.digitalWrite(EXP_PIN_LED, LOW);
 
 #ifdef PIN_GPS_SWITCH

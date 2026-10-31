@@ -752,6 +752,9 @@ void UITask::begin(DisplayDriver* display, SensorManager* sensors, NodePrefs* no
 
 #if defined(PIN_USER_BTN)
   user_btn.begin();
+#if defined(UI_PREV_BTN)
+  prev_btn.begin();
+#endif
 #endif
 #if defined(PIN_USER_BTN_ANA)
   analog_btn.begin();
@@ -1000,6 +1003,11 @@ void UITask::loop() {
     } else if (rotaryEv == RotaryInputEvent::Prev) {
       c = KEY_PREV;
     }
+  }
+#endif
+#if defined(UI_PREV_BTN)
+  if (prev_btn.check() == BUTTON_EVENT_CLICK) {
+    c = checkDisplayOn(KEY_PREV);
   }
 #endif
 #if defined(PIN_USER_BTN_ANA)

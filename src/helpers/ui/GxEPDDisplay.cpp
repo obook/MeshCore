@@ -82,6 +82,9 @@ void GxEPDDisplay::turnOff() {
   expander.digitalWrite(EXP_PIN_BACKLIGHT, LOW);
 #endif
   _isOn = false;
+#ifdef EINK_KEEP_IMAGE_WHEN_OFF
+  return; // backlight off only: the panel keeps the last frame without power
+#endif
   // do full refresh before powering off to clear screen
   // no full refresh needed at wakeup
   display.clearScreen(0xFF); // Clears microcontroller side RAM
