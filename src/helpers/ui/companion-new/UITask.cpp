@@ -1,5 +1,6 @@
 #include "UITask.h"
 #include <helpers/TxtDataHelpers.h>
+#include <helpers/ui/ClockBattery.h>
 #include "target.h"
 #include <time.h>
 #include <RTClib.h>
@@ -170,7 +171,12 @@ class HomeScreen : public UIScreen {
 #endif
     const int minMilliVolts = BATT_MIN_MILLIVOLTS;
     const int maxMilliVolts = BATT_MAX_MILLIVOLTS;
+#ifdef UI_BATT_LIPO_PERCENT
+    // rounded to 5 % so ADC noise does not redraw the e-ink every few seconds
+    int batteryPercentage = (lipoPercent(batteryMilliVolts) + 2) / 5 * 5;
+#else
     int batteryPercentage = ((batteryMilliVolts - minMilliVolts) * 100) / (maxMilliVolts - minMilliVolts);
+#endif
     if (batteryPercentage < 0) batteryPercentage = 0; // Clamp to 0%
     if (batteryPercentage > 100) batteryPercentage = 100; // Clamp to 100%
 
@@ -222,6 +228,21 @@ class HomeScreen : public UIScreen {
       display.setColor(UIColor::title_txt);
       display.drawXbm(x, iconY + 1, lock_icon, 8, 8);
     }
+#endif
+
+#ifdef UI_BATT_LIPO_PERCENT
+    // percentage just left of the battery and its status icons
+    int textRight = iconX - 2 - (charging ? 9 : 0);
+  #ifdef PIN_BUZZER
+    if (_task->isBuzzerQuiet()) textRight -= 9;
+  #endif
+  #if UI_HAS_JOYSTICK
+    if (_task->isLocked()) textRight -= 9;
+  #endif
+    char pct[5];
+    sprintf(pct, "%d%%", batteryPercentage);
+    display.setColor(UIColor::title_txt);
+    display.drawTextRightAlign(textRight, 2, pct);
 #endif
   }
 
@@ -356,6 +377,9 @@ public:
         display.setTextSize(3);
         uint32_t now = _rtc->getCurrentTime();
         now += (int32_t)(_node_prefs->tz_offset * 3600);
+#ifdef UI_CLOCK_EU_DST
+        if (isEuSummerTime(now - (int32_t)(_node_prefs->tz_offset * 3600))) now += 3600;
+#endif
         DateTime dt (now);
         sprintf(tmp, "%02d:%02d", dt.hour(), dt.minute());
         display.drawTextCentered(display.width() / 2, 60, tmp);
