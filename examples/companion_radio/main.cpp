@@ -355,6 +355,10 @@ void loop() {
 #endif
 
 #if defined(BLE_PIN_CODE) && !defined(WIFI_SSID) && !defined(ETHERNET_ENABLED)
+  // Real GPS state, not gps_enabled: a hardware switch (ThinkNode M1, M5) turns the GPS on or off without that setting
+  const char* gps = sensors.getSettingByKey("gps");
+  bool gps_on = gps && strcmp(gps, "1") == 0;
+
   // Track phone connection state for disconnect sleep
   if (bluetooth_interface.hasPendingConnection()) {
     disconnectTime = 0;
@@ -365,7 +369,7 @@ void loop() {
   }
   // Short-sleep cycle when BLE is enabled but phone is disconnected
   if (bluetooth_interface.isEnabled() && disconnectTime != 0
-      && !the_mesh.getNodePrefs()->gps_enabled
+      && !gps_on
       && the_mesh.millisHasNowPassed(disconnectTime + DISCONNECT_SLEEP_TIMEOUT_MS)
       && !the_mesh.hasPendingWork()
       && (lastSleepWake == 0 || the_mesh.millisHasNowPassed(lastSleepWake + RECONNECT_WINDOW_MS))) {
@@ -384,7 +388,7 @@ void loop() {
   // Power saving when BLE is disabled
   // Don't sleep if GPS is enabled - it needs continuous operation to maintain fix
   // Note: Disabling BLE via UI actually turns off the radio to save power
-  if (!bluetooth_interface.isEnabled() && !the_mesh.getNodePrefs()->gps_enabled) {
+  if (!bluetooth_interface.isEnabled() && !gps_on) {
     // Check for pending work and update activity timer
     if (the_mesh.hasPendingWork()) {
       lastActive = millis();
