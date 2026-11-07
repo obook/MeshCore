@@ -66,6 +66,8 @@ public:
   void disable() override;
   bool isEnabled() const override { return _isEnabled; }
   bool isConnected() const override;
+  // linked but not yet secured (PIN entry): the companion sleep cycle must not cut it
+  bool hasPendingConnection() const override { return Bluefruit.connected() > 0; }
   bool isWriteBusy() const override;
   size_t writeFrame(const uint8_t src[], size_t len) override;
   size_t checkRecvFrame(uint8_t dest[]) override;
