@@ -21,6 +21,8 @@ below, built as the companion Bluetooth firmware
 - [x] The firmware version carries the git commit (`v1.18.0-<commit>`)
 - [x] M1: same clock, time zone, battery percentage and version as the M5
 - [x] M1: the sleep cycle no longer cuts a phone that is still pairing
+- [x] The node name sits under the date, out of the title bar where the
+  battery percentage covered it
 
 ## To check on the hardware
 

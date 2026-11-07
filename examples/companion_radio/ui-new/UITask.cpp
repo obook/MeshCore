@@ -275,8 +275,14 @@ public:
     display.setColor(UIColor::title_txt);
     char filtered_name[sizeof(_node_prefs->node_name)];
     display.translateUTF8ToBlocks(filtered_name, _node_prefs->node_name, sizeof(filtered_name));
-    display.setCursor(0, 2);
-    display.print(filtered_name);
+#ifdef UI_NAME_UNDER_DATE
+    // the battery percentage covers a long name in the title bar: show it under the date instead
+    if (!_node_prefs->ui_show_clock)
+#endif
+    {
+      display.setCursor(0, 2);
+      display.print(filtered_name);
+    }
 
     // battery voltage
     renderBatteryIndicator(display, _task->getBattMilliVolts());
@@ -323,6 +329,12 @@ public:
         display.setTextSize(1);
         sprintf(tmp, "%02d/%02d/%d", dt.day(), dt.month(), dt.year());
         display.drawTextCentered(display.width() / 2, 80, tmp);
+#ifdef UI_NAME_UNDER_DATE
+        if (display.getTextWidth(filtered_name) > display.width())
+          display.drawTextEllipsized(0, 95, display.width(), filtered_name);
+        else
+          display.drawTextCentered(display.width() / 2, 95, filtered_name);
+#endif
       }
       #ifdef ENABLE_WIFI_INTERFACE
         IPAddress ip = WiFi.localIP();
