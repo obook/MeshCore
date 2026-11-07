@@ -1,9 +1,9 @@
 # Roadmap
 
-Our MeshCore fork for the ELECROW ThinkNode M5, branch `m5_obook` of
-obook/MeshCore. It is the official `dev` branch plus the changes below,
-built as the companion Bluetooth firmware
-(`ThinkNode_M5_companion_radio_ble`).
+Our MeshCore fork for the ELECROW ThinkNode M5 and M1, branch `m5_obook`
+of obook/MeshCore. It is the official `dev` branch plus the changes
+below, built as the companion Bluetooth firmware
+(`ThinkNode_M5_companion_radio_ble`, `ThinkNode_M1_companion_radio_ble`).
 
 ## Done
 
@@ -19,23 +19,29 @@ built as the companion Bluetooth firmware
 - [x] The sleep checks whether the GPS really runs, not the app setting
 - [x] CPU at 80 MHz
 - [x] The firmware version carries the git commit (`v1.18.0-<commit>`)
+- [x] M1: same clock, time zone, battery percentage and version as the M5
+- [x] M1: the sleep cycle no longer cuts a phone that is still pairing
 
 ## To check on the hardware
 
 - [ ] Phone disconnected for over a minute, GPS off: the M5 sleeps 12 s,
   wakes 3 s, and MeshVox reconnects
-- [ ] Battery life at 80 MHz, against the 8 hours measured on bfb5ac29
+- [ ] Battery life at 80 MHz, against the 8 hours measured on 0558a0e3
   with the GPS off
 - [ ] Bluetooth, LoRa and the screen still work normally at 80 MHz
+- [ ] M1: pair a phone (PIN 123456) more than a minute after boot
+- [ ] M1: clock, time zone and battery percentage on the screen
 
 ## To do
 
 - [ ] The M5 never sleeps while the phone stays connected
+- [ ] M1: the short sleep cycle saves nothing, since `sleep()` on the
+  nRF52 only waits for the next interrupt
 - [ ] Rebase `m5_obook` on the official `dev` from time to time
 - [ ] Follow PRs #3741, #3744, #3748 and #1686: once they are merged
   upstream, the rebase drops our copies
 
-## Flashing
+## Flashing the M5
 
 Take a full 4 MB backup, then write only the app image at 0x10000:
 
@@ -45,3 +51,14 @@ Take a full 4 MB backup, then write only the app image at 0x10000:
 Do not use `pio run -t upload`, which also rewrites the bootloader and
 the boot selection, nor the `-merged.bin` image, which erases the
 Bluetooth pairing. Keep the backup out of git: it holds the private key.
+
+## Flashing the M1
+
+On the M1, `pio run -t upload` writes the app over USB and leaves the
+bootloader alone:
+
+    pio run -e ThinkNode_M1_companion_radio_ble -t upload --upload-port /dev/ttyACM0
+
+The serial bootloader cannot read the flash back, so there is no backup
+step. A double press on reset opens the UF2 drive instead, where you can
+copy `firmware.uf2` (built with `-t create_uf2`).
