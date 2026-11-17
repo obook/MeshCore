@@ -1,6 +1,6 @@
 # Roadmap
 
-Our MeshCore fork for the ELECROW ThinkNode M5 and M1, branch `m5_obook`
+Our MeshCore fork for the ELECROW ThinkNode M5 and M1, branch `thinknode_obook`
 of obook/MeshCore. It is the official `dev` branch plus the changes
 below, built as the companion Bluetooth firmware
 (`ThinkNode_M5_companion_radio_ble`, `ThinkNode_M1_companion_radio_ble`).
@@ -46,7 +46,7 @@ below, built as the companion Bluetooth firmware
   to act (commit bdaf7613, branch `m5-avant-rebase`). Until then:
   `set ui.backlight_delay 15`, and `set ui.backlight_on_keys 1` so both
   side buttons light it
-- [ ] Rebase `m5_obook` on the official `dev` from time to time
+- [ ] Rebase `thinknode_obook` on the official `dev` from time to time
 - [ ] Follow PRs #3741, #3744, #3748 and #1686: once they are merged
   upstream, the rebase drops our copies
 
