@@ -78,6 +78,8 @@ below, built as the companion Bluetooth firmware
 - [ ] Upstream PR: the M6 double and triple click (board ifdef in the
   repeater main)
 - [ ] Follow PR #3929 (GPS on the M1 USB build)
+- [ ] Upstream PR: the M1 read-only `gps_switch` custom var (check how the
+  official app lists custom vars first)
 
 ## Flashing the M5
 

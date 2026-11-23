@@ -70,16 +70,25 @@ void ThinkNodeM1SensorManager::loop() {
 }
 
 int ThinkNodeM1SensorManager::getNumSettings() const {
-  return 1;  // always show GPS setting
+  return 2;  // always show GPS setting, and the GPS switch
 }
 
 const char* ThinkNodeM1SensorManager::getSettingName(int i) const {
-  return (i == 0) ? "gps" : NULL;
+  if (i == 0) {
+    return "gps";
+  }
+  if (i == 1) {
+    return "gps_switch";   // read-only
+  }
+  return NULL;
 }
 
 const char* ThinkNodeM1SensorManager::getSettingValue(int i) const {
   if (i == 0) {
-    return _location->isGpsOn() ? "1" : "0";
+    return _location->isGpsOn() ? "1" : "0";   // requested; the switch can still keep the GPS off
+  }
+  if (i == 1) {
+    return _location->isHardwareEnabled() ? "1" : "0";
   }
   return NULL;
 }
