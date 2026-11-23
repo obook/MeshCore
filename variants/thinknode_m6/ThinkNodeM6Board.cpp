@@ -1,4 +1,5 @@
 #include "ThinkNodeM6Board.h"
+#include "StatusLed.h"
 #include <Arduino.h>
 
 #ifdef THINKNODE_M6
@@ -26,6 +27,8 @@ static void recoverI2cBus() {
 void ThinkNodeM6Board::begin() {
   NRF52Board::begin();
 
+  digitalWrite(PIN_LED_RED, HIGH);   // power-on sign, see loop()
+
   recoverI2cBus();
   Wire.begin();
 
@@ -36,8 +39,39 @@ void ThinkNodeM6Board::begin() {
 
   pinMode(EXT_PWR_DETECT, INPUT);
   pinMode(EXT_CHRG_DETECT, INPUT);
+  pinMode(PIN_USER_BTN, INPUT_PULLUP);
 
   delay(10); // give sx1262 some time to power up
+}
+
+void ThinkNodeM6Board::loop() {
+  uint32_t now = millis();
+
+  // Like Meshtastic, power off when the button is released after a long hold.
+  // Presses that start during boot are ignored: a floating pin could fake one.
+  if (digitalRead(PIN_USER_BTN) == LOW) {
+    if (_btn_down_at == 0) {
+      _btn_down_at = now;
+    }
+  } else {
+    bool long_press = _btn_down_at > M6_BTN_BOOT_HOLDOFF_MILLIS
+                      && now - _btn_down_at >= M6_POWEROFF_HOLD_MILLIS;
+    if (long_press) {
+      powerOff();  // does not return
+    }
+    _btn_down_at = 0;
+  }
+
+  if (now - _red_led_changed_at < _red_led_wait_millis) {
+    return;
+  }
+  if (_batt_read_at == 0 || now - _batt_read_at >= M6_BATT_READ_MILLIS) {
+    _batt_mv = getBattMilliVolts();
+    _batt_read_at = now;
+  }
+  _red_led_on = m6RedLed(_red_led_on, now, isChargerActive(), _batt_mv, _red_led_wait_millis);
+  digitalWrite(PIN_LED_RED, _red_led_on ? HIGH : LOW);
+  _red_led_changed_at = now;
 }
 
 uint16_t ThinkNodeM6Board::getBattMilliVolts() {
