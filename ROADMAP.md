@@ -75,8 +75,9 @@ below, built as the companion Bluetooth firmware
   (`sensors.isGPSDetected()`)
 - [ ] M6: `initiateShutdown()` is declared but never defined, so turning
   on `NRF52_POWER_MANAGEMENT` would fail to link (also upstream)
-- [ ] Upstream PRs: the M6 double and triple click (board ifdef in the
-  repeater main), and `ENV_INCLUDE_GPS=1` for the M1 USB build alone
+- [ ] Upstream PR: the M6 double and triple click (board ifdef in the
+  repeater main)
+- [ ] Follow PR #3929 (GPS on the M1 USB build)
 
 ## Flashing the M5
 
