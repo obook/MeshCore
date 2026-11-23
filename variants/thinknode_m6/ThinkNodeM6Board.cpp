@@ -1,6 +1,7 @@
 #include "ThinkNodeM6Board.h"
 #include "StatusLed.h"
 #include <Arduino.h>
+#include <target.h>
 
 #ifdef THINKNODE_M6
 
@@ -79,16 +80,30 @@ void ThinkNodeM6Board::loop() {
     _btn_down_at = 0;
   }
 
-  if (now - _red_led_changed_at < _red_led_wait_millis) {
-    return;
-  }
   if (_batt_read_at == 0 || now - _batt_read_at >= M6_BATT_READ_MILLIS) {
     _batt_mv = getBattMilliVolts();
     _batt_read_at = now;
   }
-  _red_led_on = m6RedLed(_red_led_on, now, isChargerActive(), _batt_mv, _red_led_wait_millis);
-  digitalWrite(PIN_LED_RED, _red_led_on ? HIGH : LOW);
-  _red_led_changed_at = now;
+  bool red_on = m6RedLed(now, isChargerActive(), _batt_mv);
+  if (red_on != _red_led_on) {
+    digitalWrite(PIN_LED_RED, red_on ? HIGH : LOW);
+    _red_led_on = red_on;
+  }
+
+#ifdef P_LORA_TX_LED
+  uint32_t rx_count = radio_driver.getPacketsRecv();
+  if (rx_count != _rx_count) {
+    _rx_count = rx_count;
+    _rx_at = now;
+    _data_started_at = now;
+  }
+  bool data_active = _tx_active || now - _rx_at < M6_RX_FLASH_MILLIS;
+  bool blue_on = m6BlueLed(data_active, now - _data_started_at);
+  if (blue_on != _blue_led_on) {
+    digitalWrite(P_LORA_TX_LED, blue_on ? HIGH : LOW);
+    _blue_led_on = blue_on;
+  }
+#endif
 }
 
 uint16_t ThinkNodeM6Board::getBattMilliVolts() {

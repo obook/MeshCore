@@ -17,11 +17,15 @@
 #define M6_BATT_READ_MILLIS         30000
 #define M6_WATCHDOG_SECS            90
 #define M6_DFU_MAGIC_SKIP           0x6D    // tells the bootloader to start the firmware at once
+#define M6_RX_FLASH_MILLIS          400     // blue flashing after each received packet
 
 class ThinkNodeM6Board : public NRF52BoardDCDC {
   bool _red_led_on = true;
-  uint32_t _red_led_changed_at = 0;
-  uint32_t _red_led_wait_millis = 0;
+  bool _blue_led_on = false;
+  bool _tx_active = false;
+  uint32_t _data_started_at = 0;
+  uint32_t _rx_count = 0;
+  uint32_t _rx_at = 0;
   uint32_t _batt_read_at = 0;
   uint16_t _batt_mv = 0;
   uint32_t _btn_down_at = 0;
@@ -37,14 +41,14 @@ public:
   void loop() override;
   uint16_t getBattMilliVolts() override;
 
-#if defined(P_LORA_TX_LED)
+  // loop() flashes the blue LED while _tx_active is set
   void onBeforeTransmit() override {
-    digitalWrite(P_LORA_TX_LED, HIGH);   // turn TX LED on
+    _tx_active = true;
+    _data_started_at = millis();
   }
   void onAfterTransmit() override {
-    digitalWrite(P_LORA_TX_LED, LOW);   // turn TX LED off
+    _tx_active = false;
   }
-#endif
 
   const char* getManufacturerName() const override {
     return "Elecrow ThinkNode M6";
