@@ -69,8 +69,8 @@ below, built as the companion Bluetooth firmware
 - [ ] M6: the DC/DC converter is never enabled (`begin()` calls
   `NRF52Board::begin()`, not `NRF52BoardDCDC::begin()`). Check first that
   the PCB has the DC/DC inductor, for example in Meshtastic
-- [ ] M6: from a powered-off board, a double reset may not open the UF2
-  drive; plug the USB first. Note it in the M6 notes
+- [x] M6: from a powered-off board, a double reset may not open the UF2
+  drive; plug the USB first. Noted in the M6 notes
 - [ ] M6: skip the double-click when no GPS was detected
   (`sensors.isGPSDetected()`)
 - [ ] M6: `initiateShutdown()` is declared but never defined, so turning
