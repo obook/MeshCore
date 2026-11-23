@@ -30,11 +30,61 @@ static unsigned long userBtnDownAt = 0;
 #define USER_BTN_HOLD_OFF_MILLIS 1500
 #endif
 
+#if defined(THINKNODE_M6) && ENV_INCLUDE_GPS == 1 && !defined(DISPLAY_CLASS)
+#include <helpers/ui/MomentaryButton.h>
+// Elecrow M6 manual: a double-click updates the location, a triple-click
+// turns the GPS on or off. ThinkNodeM6Board handles the long presses.
+static MomentaryButton m6_btn(PIN_USER_BTN, 1000, true, true);
+static unsigned long m6_fix_wait_until = 0;   // a double-click waits for a GPS fix until then
+#define M6_FIX_WAIT_MILLIS (10 * 60 * 1000UL)
+
+static void m6Command(const char* text) {
+  char cmd[32];
+  char reply[160];
+  strcpy(cmd, text);
+  reply[0] = 0;
+  the_mesh.handleCommand(0, cmd, reply);
+  Serial.printf("button: %s -> %s\n", text, reply);
+}
+
+static void m6ButtonLoop() {
+  LocationProvider* gps = sensors.getLocationProvider();
+  if (gps == NULL) {
+    return;
+  }
+  int event = m6_btn.check();
+  if (event == BUTTON_EVENT_DOUBLE_CLICK) {
+    m6_fix_wait_until = millis() + M6_FIX_WAIT_MILLIS;
+    if (!gps->isValid()) {
+      m6Command("gps once");   // power the GPS until it gets a fix
+    }
+  } else if (event == BUTTON_EVENT_TRIPLE_CLICK) {
+    m6Command(gps->isGpsOn() ? "gps off" : "gps on");
+  }
+
+  if (m6_fix_wait_until != 0) {
+    if (gps->isValid()) {
+      // sensors only copy the fix every few seconds: take it now
+      sensors.node_lat = gps->getLatitude() / 1000000.;
+      sensors.node_lon = gps->getLongitude() / 1000000.;
+      m6Command("gps setloc");
+      m6Command("advert.zerohop");
+      m6_fix_wait_until = 0;
+    } else if (the_mesh.millisHasNowPassed(m6_fix_wait_until)) {
+      m6_fix_wait_until = 0;   // no fix in time: the saved position stays
+    }
+  }
+}
+#endif
+
 void setup() {
   Serial.begin(115200);
   delay(1000);
 
   board.begin();
+#if defined(THINKNODE_M6) && ENV_INCLUDE_GPS == 1 && !defined(DISPLAY_CLASS)
+  m6_btn.begin();
+#endif
 
 #ifdef HAS_EXTERNAL_WATCHDOG
   external_watchdog.begin();
@@ -161,6 +211,9 @@ void loop() {
   }
 
   board.loop();   // let the board feed its watchdog, run periodic housekeeping
+#if defined(THINKNODE_M6) && ENV_INCLUDE_GPS == 1 && !defined(DISPLAY_CLASS)
+  m6ButtonLoop();
+#endif
 
 #ifdef ETHERNET_ENABLED
   ethernet_loop_maintain();
