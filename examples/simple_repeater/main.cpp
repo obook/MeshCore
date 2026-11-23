@@ -36,7 +36,9 @@ static unsigned long userBtnDownAt = 0;
 // turns the GPS on or off. ThinkNodeM6Board handles the long presses.
 static MomentaryButton m6_btn(PIN_USER_BTN, 1000, true, true);
 static unsigned long m6_fix_wait_until = 0;   // a double-click waits for a GPS fix until then
-#define M6_FIX_WAIT_MILLIS (10 * 60 * 1000UL)
+static unsigned long m6_fix_since = 0;        // when the current fix became valid
+#define M6_FIX_WAIT_MILLIS   (5 * 60 * 1000UL)   // "gps once" gives up after 5 min too
+#define M6_FIX_SETTLE_MILLIS 5000   // a first fix can be off; "gps once" keeps the GPS on 10 s after it
 
 static void m6Command(const char* text) {
   char cmd[32];
@@ -63,15 +65,23 @@ static void m6ButtonLoop() {
   }
 
   if (m6_fix_wait_until != 0) {
-    if (gps->isValid()) {
+    bool fix = gps->isValid() && gps->hasValidFix();   // hasValidFix(): accepted by the GPS guard, if any
+    if (!fix) {
+      m6_fix_since = 0;
+    } else if (m6_fix_since == 0) {
+      m6_fix_since = millis();
+    }
+    if (fix && millis() - m6_fix_since >= M6_FIX_SETTLE_MILLIS) {
       // sensors only copy the fix every few seconds: take it now
       sensors.node_lat = gps->getLatitude() / 1000000.;
       sensors.node_lon = gps->getLongitude() / 1000000.;
       m6Command("gps setloc");
       m6Command("advert.zerohop");
       m6_fix_wait_until = 0;
+      m6_fix_since = 0;
     } else if (the_mesh.millisHasNowPassed(m6_fix_wait_until)) {
       m6_fix_wait_until = 0;   // no fix in time: the saved position stays
+      m6_fix_since = 0;
     }
   }
 }
