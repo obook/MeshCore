@@ -23,6 +23,14 @@ below, built as the companion Bluetooth firmware
 - [x] M1: the sleep cycle no longer cuts a phone that is still pairing
 - [x] The node name sits under the date, out of the title bar where the
   battery percentage covered it
+- [x] M1: the USB build gets the same screen settings and the GPS
+- [x] M6: LEDs and button as in the Elecrow manual, plus a short red flash
+  every 3 s on battery (PR #3928)
+- [x] M6: the I2C bus is freed at boot, after a reset left the RTC holding
+  it (PR #3926)
+- [x] M6: 90 s watchdog (PR #3927)
+- [x] M6 repeater: a double-click saves the GPS position and sends a
+  zero-hop advert, a triple-click turns the GPS on or off
 
 ## To check on the hardware
 
@@ -36,6 +44,12 @@ below, built as the companion Bluetooth firmware
   read its messages
 - [ ] M1: pair a phone (PIN 123456) more than a minute after boot
 - [ ] M1: clock, time zone and battery percentage on the screen
+- [ ] M6: current after a short press on a powered-off board, against a
+  normal power off (the radio must sleep in both cases)
+- [ ] M6: a short press on battery, in the dark, keeps the board off (the
+  charger status pin has no internal pull-up at boot)
+- [ ] M6: BLE OTA update with the watchdog running
+- [ ] M6: double-click outdoors, with a GPS fix
 
 ## To do
 
@@ -49,6 +63,20 @@ below, built as the companion Bluetooth firmware
 - [ ] Rebase `thinknode_obook` on the official `dev` from time to time
 - [ ] Follow PRs #3741, #3744, #3748 and #1686: once they are merged
   upstream, the rebase drops our copies
+- [ ] Follow PRs #3926, #3927 and #3928 (M6). In #3928, say that the 3 s
+  hold to power on applies to every M6 build, including the low-battery
+  power off of the companion; split the PR if reviewers ask
+- [ ] M6: the DC/DC converter is never enabled (`begin()` calls
+  `NRF52Board::begin()`, not `NRF52BoardDCDC::begin()`). Check first that
+  the PCB has the DC/DC inductor, for example in Meshtastic
+- [ ] M6: from a powered-off board, a double reset may not open the UF2
+  drive; plug the USB first. Note it in the M6 notes
+- [ ] M6: skip the double-click when no GPS was detected
+  (`sensors.isGPSDetected()`)
+- [ ] M6: `initiateShutdown()` is declared but never defined, so turning
+  on `NRF52_POWER_MANAGEMENT` would fail to link (also upstream)
+- [ ] Upstream PRs: the M6 double and triple click (board ifdef in the
+  repeater main), and `ENV_INCLUDE_GPS=1` for the M1 USB build alone
 
 ## Flashing the M5
 
