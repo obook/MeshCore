@@ -24,11 +24,26 @@ static void recoverI2cBus() {
   pinMode(PIN_WIRE_SCL, INPUT_PULLUP);
 }
 
+// Resets the board when loop() stops feeding it, for example on an I2C read
+// that never ends. Like Meshtastic: 90 s, paused while the CPU sleeps or a
+// debugger halts it. A pin reset stops it, a soft reset does not.
+static void startWatchdog() {
+  if (NRF_WDT->RUNSTATUS) {
+    return;   // still running after a soft reset, and locked until the next one
+  }
+  NRF_WDT->CONFIG = (WDT_CONFIG_SLEEP_Pause << WDT_CONFIG_SLEEP_Pos)
+                    | (WDT_CONFIG_HALT_Pause << WDT_CONFIG_HALT_Pos);
+  NRF_WDT->CRV = M6_WATCHDOG_SECS * 32768;   // counts the 32.768 kHz clock
+  NRF_WDT->RREN = WDT_RREN_RR0_Msk;
+  NRF_WDT->TASKS_START = 1;
+}
+
 void ThinkNodeM6Board::begin() {
   NRF52Board::begin();
 
   digitalWrite(PIN_LED_RED, HIGH);   // power-on sign, see loop()
 
+  startWatchdog();   // first, so that a hang later in the boot is caught too
   recoverI2cBus();
   Wire.begin();
 
@@ -46,6 +61,8 @@ void ThinkNodeM6Board::begin() {
 
 void ThinkNodeM6Board::loop() {
   uint32_t now = millis();
+
+  NRF_WDT->RR[0] = WDT_RR_RR_Reload;   // feed the watchdog
 
   // Like Meshtastic, power off when the button is released after a long hold.
   // Presses that start during boot are ignored: a floating pin could fake one.

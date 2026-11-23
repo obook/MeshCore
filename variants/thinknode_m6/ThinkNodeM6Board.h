@@ -15,6 +15,7 @@
 #define M6_POWEROFF_HOLD_MILLIS     3900    // Meshtastic: hold time before power off
 #define M6_BTN_BOOT_HOLDOFF_MILLIS  30000   // Meshtastic: ignore presses that start earlier
 #define M6_BATT_READ_MILLIS         30000
+#define M6_WATCHDOG_SECS            90
 #define M6_DFU_MAGIC_SKIP           0x6D    // tells the bootloader to start the firmware at once
 
 class ThinkNodeM6Board : public NRF52BoardDCDC {
