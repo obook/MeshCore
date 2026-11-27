@@ -151,7 +151,7 @@ void ThinkNodeM6Board::loop() {
     _batt_mv = getBattMilliVolts();
     _batt_read_at = now;
   }
-  bool red_on = m6RedLed(now, isChargerActive(), _batt_mv);
+  bool red_on = m6RedLed(now, isUsbPowered(), isSolarChargerActive(), _batt_mv);
   if (red_on != _red_led_on) {
     digitalWrite(PIN_LED_RED, red_on ? HIGH : LOW);
     _red_led_on = red_on;

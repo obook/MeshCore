@@ -10,15 +10,21 @@
 #define M6_DATA_BLINK_MILLIS      100     // rapid flashing at 5 Hz: 100 ms on, 100 ms off
 #define M6_HEARTBEAT_MILLIS       3000    // not in the manual: a short sign of life on battery
 #define M6_HEARTBEAT_FLASH_MILLIS 2
+#define M6_SOLAR_BEAT_MILLIS      1000    // not in the manual: faster while the sun charges
 
-// Red PWR LED: on for 10 s at power-on, steady while charging, slow flashing
-// when the battery is low, otherwise a 2 ms flash every 3 s.
-inline bool m6RedLed(uint32_t now, bool charging, uint16_t batt_mv) {
+// Red PWR LED: on for 10 s at power-on, steady on USB, a 2 ms flash every
+// second while the sun charges, slow flashing when the battery is low,
+// otherwise a 2 ms flash every 3 s. The manual's steady light while the sun
+// charges stayed on for seconds at a time under changing light.
+inline bool m6RedLed(uint32_t now, bool usb, bool solar, uint16_t batt_mv) {
   if (now < M6_BOOT_LED_MILLIS) {
     return true;
   }
-  if (charging) {
+  if (usb) {
     return true;
+  }
+  if (solar) {
+    return now % M6_SOLAR_BEAT_MILLIS < M6_HEARTBEAT_FLASH_MILLIS;
   }
   bool low_battery = batt_mv > 1000 && batt_mv <= M6_BATT_LOW_MV;   // below 1 V is a bad reading
   if (low_battery) {
