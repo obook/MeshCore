@@ -11,10 +11,12 @@ and the M6 repeater (`ThinkNode_M6_repeater`).
 - [x] Adafruit GFX pinned to 1.12.6, as in the official v1.18.0 binary
 - [x] The radio's own partition table, so the app image can be flashed
   alone without losing the identity key, contacts and channels
-- [x] EU summer time and battery percentage on the screen (PR #3744)
+- [x] EU summer time and battery percentage on the screen (PR #3744,
+  replaced by #3964 for summer time only; the percentage stays in the fork)
 - [x] Time zone UTC+1 by default
 - [x] The clock no longer goes back at boot (PR #3741)
-- [x] The GPS switch turns the GPS on and off (PR #3748)
+- [x] M5 GPS switch: it cuts the GPS power by itself, so the firmware
+  does nothing (PR #3748 closed)
 - [x] Short sleeps when the phone disconnects (upstream PR #1686, not
   merged yet)
 - [x] The sleep checks whether the GPS really runs, not the app setting
@@ -68,11 +70,12 @@ and the M6 repeater (`ThinkNode_M6_repeater`).
   `set ui.backlight_delay 15`, and `set ui.backlight_on_keys 1` so both
   side buttons light it
 - [ ] Rebase `thinknode_obook` on the official `dev` from time to time
-- [ ] Follow PRs #3741, #3744, #3748 and #1686: once they are merged
-  upstream, the rebase drops our copies
-- [ ] Follow PRs #3927 and #3928 (M6). In #3928, say that the 3 s
-  hold to power on applies to every M6 build, including the low-battery
-  power off of the companion; split the PR if reviewers ask
+- [ ] Follow PRs #3741, #3964 and #1686: once they are merged upstream,
+  the rebase drops our copies
+- [ ] Once #3964 is merged: replace `UI_CLOCK_EU_DST` with
+  `-D UI_CLOCK_DST=1` in the fork's M1 and M5 builds
+- [ ] PRs #3927 and #3928 (M6) are on hold: the maintainer wants LEDs,
+  buttons and the watchdog shared across boards, after the UI refactor
 - [ ] M6: the DC/DC converter is never enabled (`begin()` calls
   `NRF52Board::begin()`, not `NRF52BoardDCDC::begin()`). Check first that
   the PCB has the DC/DC inductor, for example in Meshtastic
@@ -82,8 +85,7 @@ and the M6 repeater (`ThinkNode_M6_repeater`).
   (`sensors.isGPSDetected()`)
 - [ ] M6: `initiateShutdown()` is declared but never defined, so turning
   on `NRF52_POWER_MANAGEMENT` would fail to link (also upstream)
-- [ ] Upstream PR: the M6 double and triple click (board ifdef in the
-  repeater main)
+- [ ] Upstream PR: the M6 double and triple click, on hold like #3928
 - [ ] Upstream PR: the M1 read-only `gps_switch` custom var (check how the
   official app lists custom vars first)
 
