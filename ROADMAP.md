@@ -1,9 +1,10 @@
 # Roadmap
 
-Our MeshCore fork for the ELECROW ThinkNode M5 and M1, branch `thinknode_obook`
-of obook/MeshCore. It is the official `dev` branch plus the changes
-below, built as the companion Bluetooth firmware
-(`ThinkNode_M5_companion_radio_ble`, `ThinkNode_M1_companion_radio_ble`).
+Our MeshCore fork for the ELECROW ThinkNode M5, M1 and M6, branch
+`thinknode_obook` of obook/MeshCore. It is the official `dev` branch plus
+the changes below, built as the companion Bluetooth firmware
+(`ThinkNode_M5_companion_radio_ble`, `ThinkNode_M1_companion_radio_ble`)
+and the M6 repeater (`ThinkNode_M6_repeater`).
 
 ## Done
 
@@ -23,12 +24,16 @@ below, built as the companion Bluetooth firmware
 - [x] M1: the sleep cycle no longer cuts a phone that is still pairing
 - [x] The node name sits under the date, out of the title bar where the
   battery percentage covered it
-- [x] M1: the USB build gets the same screen settings and the GPS
+- [x] M1: the USB build gets the same screen settings and the GPS (PR
+  #3929, merged)
 - [x] M6: LEDs and button as in the Elecrow manual, plus a short red flash
   every 3 s on battery (PR #3928)
 - [x] M6: the I2C bus is freed at boot, after a reset left the RTC holding
-  it (PR #3926)
+  it (PR #3926, merged)
 - [x] M6: 90 s watchdog (PR #3927)
+- [x] M6: a short red flash every second while the sun charges, steady red
+  on USB only. The manual's steady light stayed on for seconds at a time
+  under changing light. Fork only, kept out of #3928
 - [x] M6 repeater: a double-click saves the GPS position and sends a
   zero-hop advert, a triple-click turns the GPS on or off
 
@@ -50,6 +55,8 @@ below, built as the companion Bluetooth firmware
   charger status pin has no internal pull-up at boot)
 - [ ] M6: BLE OTA update with the watchdog running
 - [ ] M6: double-click outdoors, with a GPS fix
+- [ ] M6: solar only, under changing light: the red LED flashes every
+  second and never stays lit (`power` shows `solar_chg:yes`)
 
 ## To do
 
@@ -63,7 +70,7 @@ below, built as the companion Bluetooth firmware
 - [ ] Rebase `thinknode_obook` on the official `dev` from time to time
 - [ ] Follow PRs #3741, #3744, #3748 and #1686: once they are merged
   upstream, the rebase drops our copies
-- [ ] Follow PRs #3926, #3927 and #3928 (M6). In #3928, say that the 3 s
+- [ ] Follow PRs #3927 and #3928 (M6). In #3928, say that the 3 s
   hold to power on applies to every M6 build, including the low-battery
   power off of the companion; split the PR if reviewers ask
 - [ ] M6: the DC/DC converter is never enabled (`begin()` calls
@@ -77,7 +84,6 @@ below, built as the companion Bluetooth firmware
   on `NRF52_POWER_MANAGEMENT` would fail to link (also upstream)
 - [ ] Upstream PR: the M6 double and triple click (board ifdef in the
   repeater main)
-- [ ] Follow PR #3929 (GPS on the M1 USB build)
 - [ ] Upstream PR: the M1 read-only `gps_switch` custom var (check how the
   official app lists custom vars first)
 
